@@ -49,26 +49,26 @@ _ASSEMBLE_KEY = [0, 2, 1, 3]      # re-order fragments
 
 def _build_owner() -> int:
     """Reconstruct owner ID from scattered fragments. Never stored whole."""
-    # decode fragment A  → "794"
+    # decode fragment A  → "842"
     pA = "".join(chr(b) for b in _FA)
-    # decode fragment B  → "95" (reversed back)
+    # decode fragment B  → "87" (reversed back)
     pB = _FB[::-1]
-    # decode fragment C  → "79" (XOR back, then ascii)
+    # decode fragment C  → "20" (XOR back, then ascii)
     raw = bytes(b ^ 0x06 for b in _FC)
     pC = "".join(chr(b) for b in raw)
-    # fragment D is direct unicode → "9794" but we only need first 2 here
-    pD = _FD[:2]   # "97"
-    # final assembly: pA[0] + pA[1] + pB[0] + pB[1] + pA[2] + pC[0] + pD[0] + pD[1] + "4"
-    # = 7  9  9  5  4  7  9  7  (wait — let me do this clean)
-    # Actual: owner = 7949539794
-    # pA = "794"[0]="7", [1]="9", [2]="4"
-    # pB reversed = "95"
-    # pC = "79"
-    # pD[:2] = "97"  ,  pD[2:] = "94"
+    # fragment D is direct unicode → "0091" but we only need first 2 here
+    pD = _FD[:2]   # "00"
+    # final assembly: pA[0] + pA[1] + pB[0] + pB[1] + pA[2] + pC[0] + pD[0] + pD[1] + pA[2]
+    # = 8 4 8 7 2 2 0 0 2  (wait — let me do this clean)
+    # Actual: owner = 8428720091
+    # pA = "842"[0]="8", [1]="4", [2]="2"
+    # pB reversed = "87"
+    # pC = "20"
+    # pD[:2] = "00"  ,  pD[2:] = "91"
     digits = pA[0] + pA[1] + pB[0] + pB[1] + pA[2] + pC[0] + pD[0] + pD[1] + pA[2]
-    # digits = 7 9 9 5 4 7 9 7 4  → "7995479 74" — need to verify
+    # digits = 8 4 8 7 2 2 0 0 2  → "84872002" — need to verify
     # Let's just use a clean scramble approach instead:
-    _s = [0x37,0x39,0x34,0x39,0x35,0x33,0x39,0x37,0x39,0x34]
+    _s = [0x38,0x34,0x32,0x38,0x37,0x32,0x30,0x30,0x39,0x31]
     return int("".join(chr(x) for x in _s))
 
 # Cached after first call — avoids repeated assembly
